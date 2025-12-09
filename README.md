@@ -32,7 +32,8 @@ Built with **Java 21**, **Spring Boot 4**, **PostgreSQL**, and **Docker**.
    -H "Content-Type: application/json" \ 
    -d '{"email":"test@example.com", "password":"password123"}'
    ```
-Copy the token from the response.
+Copy the token from the response. 
+
 3. Process Data (Requires Token)
    ```bash
    curl -X POST http://localhost:8080/api/process \ 
