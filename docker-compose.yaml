@@ -1,0 +1,61 @@
+services:
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    networks:
+      - service-net
+    environment:
+      POSTGRES_USER: postgres_user
+      POSTGRES_PASSWORD: postgres_pass
+      POSTGRES_DB: postgres_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres_user -d postgres_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  auth-api:
+    build:
+      context: ./auth-api
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - service-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    environment:
+      - POSTGRES_URL=jdbc:postgresql://postgres:5432/postgres_db
+      - POSTGRES_USER=postgres_user
+      - POSTGRES_PASSWORD=postgres_pass
+      - JWT_SECRET=598ee840b852044ea0cd04d7a2826cd30e055c0f
+      - EXPIRATION_TIME=86400000
+      - INTERNAL_TOKEN=BpOWBeXyDmAMdS8Kx6Upg3shWajervjhQQWZ2V89DCxbpECyc6WLmqJm2EVe7ut2
+
+  data-api:
+    build:
+      context: ./data-api
+      dockerfile: Dockerfile
+    networks:
+      - service-net
+    restart: unless-stopped
+    environment:
+      - INTERNAL_TOKEN=BpOWBeXyDmAMdS8Kx6Upg3shWajervjhQQWZ2V89DCxbpECyc6WLmqJm2EVe7ut2
+
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  service-net:
+    driver: bridge
+    name: service-net

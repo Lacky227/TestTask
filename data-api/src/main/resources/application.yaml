@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: DataAPI
+
+app:
+  internal:
+    token: ${INTERNAL_TOKEN}
+
+server:
+  port: 8081
